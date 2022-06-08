@@ -36,13 +36,16 @@ func main() {
 	r.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
 	r.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
-	fmt.Println("Starting server at port 8009")
-	log.Fatal(http.ListenAndServe(":8009", r))
+	fmt.Println("Starting server at port 8030")
+	log.Fatal(http.ListenAndServe(":8030", r))
 }
 
-func getMovies(writer http.ResponseWriter, request *http.Request) {
+func getMovies(writer http.ResponseWriter, _ *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(writer).Encode(movies)
+	err := json.NewEncoder(writer).Encode(movies)
+	if err != nil {
+		return
+	}
 }
 
 func deleteMovie(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +57,10 @@ func deleteMovie(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	json.NewEncoder(w).Encode(movies)
+	err := json.NewEncoder(w).Encode(movies)
+	if err != nil {
+		return
+	}
 }
 
 func getMovie(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +68,10 @@ func getMovie(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range movies {
 		if item.ID == params["id"] {
-			json.NewEncoder(w).Encode(item)
+			err := json.NewEncoder(w).Encode(item)
+			if err != nil {
+				return
+			}
 			return
 		}
 	}
@@ -74,7 +83,10 @@ func createMovie(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&movie)
 	movie.ID = strconv.Itoa(rand.Intn(10000000))
 	movies = append(movies, movie)
-	json.NewEncoder(w).Encode(movie)
+	err := json.NewEncoder(w).Encode(movie)
+	if err != nil {
+		return
+	}
 }
 
 func updateMovie(w http.ResponseWriter, r *http.Request) {
@@ -87,9 +99,10 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 			_ = json.NewDecoder(r.Body).Decode(&movie)
 			movie.ID = params["id"]
 			movies = append(movies, movie)
-			json.NewEncoder(w).Encode(movies)
+			err := json.NewEncoder(w).Encode(movies)
+			if err != nil {
+				return
+			}
 		}
 	}
 }
-
-
