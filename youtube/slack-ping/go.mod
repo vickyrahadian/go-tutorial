@@ -1,4 +1,4 @@
-module slack-age-bot
+module slack-ping
 
 go 1.17
 
